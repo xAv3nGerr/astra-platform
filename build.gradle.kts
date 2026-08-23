@@ -1,9 +1,8 @@
 plugins {
     `java-library`
-    `maven-publish`
 }
 
-group = "com.github.xAv3nGer"
+group = "com.github.xAv3nGerr"
 version = "1.0.0"
 
 repositories {
@@ -12,26 +11,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("net.kyori:adventure-api:5.2.0")
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPages"
-            url = uri(layout.projectDirectory.dir("docs")) // <--- Zmiana z repo na docs
-        }
-    }
 }
