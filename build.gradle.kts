@@ -28,4 +28,10 @@ publishing {
             from(components["java"])
         }
     }
+    repositories {
+        maven {
+            name = "GitHubPages"
+            url = uri(layout.projectDirectory.dir("repo"))
+        }
+    }
 }
