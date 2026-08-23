@@ -31,7 +31,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPages"
-            url = uri(layout.projectDirectory.dir("repo"))
+            url = uri(layout.projectDirectory.dir("docs")) // <--- Zmiana z repo na docs
         }
     }
 }
