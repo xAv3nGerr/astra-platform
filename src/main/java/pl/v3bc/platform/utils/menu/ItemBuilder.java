@@ -9,14 +9,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pl.v3bc.platform.utils.NekoChat;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import com.destroystokyo.paper.profile.PlayerProfile;
-import com.destroystokyo.paper.profile.ProfileProperty;
+import java.util.stream.Collectors;
 
 
 /**
@@ -139,6 +136,35 @@ public final class ItemBuilder {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public ItemBuilder placeholder(String key, String value) {
+        if (this.itemMeta == null) return this;
+
+        net.kyori.adventure.text.TextReplacementConfig replacement = net.kyori.adventure.text.TextReplacementConfig.builder()
+                .matchLiteral(key)
+                .replacement(NekoChat.translate(value))
+                .build();
+
+        if (this.itemMeta.hasDisplayName()) {
+            Component name = this.itemMeta.displayName();
+            if (name != null) {
+                this.itemMeta.displayName(name.replaceText(replacement));
+            }
+        }
+
+        if (this.itemMeta.hasLore()) {
+            List<Component> lore = this.itemMeta.lore();
+            if (lore != null) {
+                List<Component> updatedLore = lore.stream()
+                        .map(line -> line.replaceText(replacement))
+                        .collect(java.util.stream.Collectors.toList());
+                this.itemMeta.lore(updatedLore);
+            }
+        }
+
+        this.refreshMeta();
+        return this;
     }
 
     public ItemMeta getMeta() {
