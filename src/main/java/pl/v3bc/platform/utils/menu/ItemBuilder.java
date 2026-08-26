@@ -139,17 +139,18 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder placeholder(String key, String value) {
-        if (this.itemMeta == null) return this;
+        if (this.itemMeta == null || key == null) return this;
 
-        net.kyori.adventure.text.TextReplacementConfig replacement = net.kyori.adventure.text.TextReplacementConfig.builder()
-                .matchLiteral(key)
-                .replacement(NekoChat.translate(value))
-                .build();
+        net.kyori.adventure.text.TextReplacementConfig replacementConfig =
+                net.kyori.adventure.text.TextReplacementConfig.builder()
+                        .matchLiteral(key)
+                        .replacement(NekoChat.translate(value != null ? value : ""))
+                        .build();
 
         if (this.itemMeta.hasDisplayName()) {
-            Component name = this.itemMeta.displayName();
-            if (name != null) {
-                this.itemMeta.displayName(name.replaceText(replacement));
+            Component currentName = this.itemMeta.displayName();
+            if (currentName != null) {
+                this.itemMeta.displayName(currentName.replaceText(replacementConfig));
             }
         }
 
@@ -157,8 +158,8 @@ public final class ItemBuilder {
             List<Component> lore = this.itemMeta.lore();
             if (lore != null) {
                 List<Component> updatedLore = lore.stream()
-                        .map(line -> line.replaceText(replacement))
-                        .collect(java.util.stream.Collectors.toList());
+                        .map(line -> line.replaceText(replacementConfig))
+                        .toList();
                 this.itemMeta.lore(updatedLore);
             }
         }
