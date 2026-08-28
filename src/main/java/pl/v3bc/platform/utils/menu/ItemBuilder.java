@@ -146,7 +146,9 @@ public final class ItemBuilder {
         if (this.itemMeta.hasDisplayName()) {
             Component currentName = this.itemMeta.displayName();
             if (currentName != null) {
-                this.itemMeta.displayName(replaceInComponent(currentName, key, replacementValue));
+                String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(currentName);
+                String replaced = serialized.replace(key, replacementValue);
+                this.itemMeta.displayName(NekoChat.translate(replaced));
             }
         }
 
@@ -154,7 +156,11 @@ public final class ItemBuilder {
             List<Component> lore = this.itemMeta.lore();
             if (lore != null) {
                 List<Component> updatedLore = lore.stream()
-                        .map(line -> replaceInComponent(line, key, replacementValue))
+                        .map(line -> {
+                            String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(line);
+                            String replaced = serialized.replace(key, replacementValue);
+                            return NekoChat.translate(replaced);
+                        })
                         .toList();
                 this.itemMeta.lore(updatedLore);
             }
@@ -162,18 +168,6 @@ public final class ItemBuilder {
 
         this.refreshMeta();
         return this;
-    }
-
-    private Component replaceInComponent(Component target, String key, String value) {
-        boolean containsMiniMessage = value.contains("<") && value.contains(">");
-
-        net.kyori.adventure.text.TextReplacementConfig config = net.kyori.adventure.text.TextReplacementConfig.builder()
-                .matchLiteral(key)
-                .replacement(containsMiniMessage ? NekoChat.translate(value) : Component.text(value))
-                .build();
-
-        return target.replaceText(config)
-                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
     }
 
     public ItemMeta getMeta() {
