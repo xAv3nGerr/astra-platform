@@ -5,18 +5,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Odtwarza <gradient:...> z rozbitego przez Adventure/MiniMessage
- * ciągu per-znakowych tagów koloru (<#RRGGBB>x</#RRGGBB>...).
- *
- * Działa tylko na ciągłych sekwencjach takich tagów - zwykły tekst
- * pomiędzy nimi jest przepisywany bez zmian.
- */
+
 public final class GradientCollapser {
 
-    private static final Pattern CHAR_COLOR_TAG =
-            Pattern.compile("<#([0-9a-fA-F]{6})>(.*?)</#\\1>", Pattern.DOTALL);
-
+    private static final Pattern OPEN_TAG = Pattern.compile("<#([0-9a-fA-F]{6})>");
     private static final int TOLERANCE = 2;
     private static final int MAX_STOPS = 5;
 
@@ -24,78 +16,108 @@ public final class GradientCollapser {
     }
 
     public static String collapse(String input) {
-        Matcher matcher = CHAR_COLOR_TAG.matcher(input);
-
         StringBuilder result = new StringBuilder();
-        int lastEnd = 0;
+        int n = input.length();
+        int i = 0;
 
-        int runStart = -1;
-        int runEnd = -1;
-        List<int[]> colors = new ArrayList<>();
-        List<String> chars = new ArrayList<>();
+        List<int[]> runColors = new ArrayList<>();
+        List<String> runChars = new ArrayList<>();
 
-        while (matcher.find()) {
-            if (runStart != -1 && matcher.start() != runEnd) {
-                flush(result, input, lastEnd, runStart, colors, chars);
-                lastEnd = runEnd;
-                colors.clear();
-                chars.clear();
-                runStart = -1;
+        while (i < n) {
+            Matcher m = OPEN_TAG.matcher(input);
+            m.region(i, n);
+
+            if (!m.lookingAt()) {
+                flushRun(result, runColors, runChars);
+                int nextOpen = findNextOpenTagStart(input, i);
+                if (nextOpen == -1) {
+                    result.append(input, i, n);
+                    i = n;
+                } else {
+                    result.append(input, i, nextOpen);
+                    i = nextOpen;
+                }
+                continue;
             }
 
-            if (runStart == -1) {
-                runStart = matcher.start();
-            }
+            String hex = m.group(1);
+            int contentStart = m.end();
+            String closeTag = "</#" + hex + ">";
 
-            runEnd = matcher.end();
-            colors.add(hexToRgb(matcher.group(1)));
-            chars.add(matcher.group(2));
+            Boundary boundary = scanContent(input, contentStart, closeTag);
+            runColors.add(hexToRgb(hex));
+            runChars.add(boundary.content());
+            i = boundary.nextIndex();
         }
 
-        if (runStart != -1) {
-            flush(result, input, lastEnd, runStart, colors, chars);
-            lastEnd = runEnd;
-        }
-
-        result.append(input, lastEnd, input.length());
+        flushRun(result, runColors, runChars);
         return result.toString();
     }
 
-    private static void flush(StringBuilder result, String input, int from, int runStart,
-                              List<int[]> colors, List<String> chars) {
-        result.append(input, from, runStart);
+    private static int findNextOpenTagStart(String input, int from) {
+        Matcher m = OPEN_TAG.matcher(input);
+        return m.find(from) ? m.start() : -1;
+    }
 
+    private record Boundary(String content, int nextIndex) {
+    }
+
+    private static Boundary scanContent(String input, int contentStart, String closeTag) {
+        int n = input.length();
+        int i = contentStart;
+        StringBuilder content = new StringBuilder();
+
+        while (i < n) {
+            if (input.startsWith(closeTag, i)) {
+                return new Boundary(content.toString(), i + closeTag.length());
+            }
+            char c = input.charAt(i);
+            if (c == '\\' && i + 1 < n) {
+                content.append(c).append(input.charAt(i + 1));
+                i += 2;
+                continue;
+            }
+            if (c == '<') {
+                return new Boundary(content.toString(), i);
+            }
+            content.append(c);
+            i++;
+        }
+        return new Boundary(content.toString(), n);
+    }
+
+    private static void flushRun(StringBuilder result, List<int[]> colors, List<String> chars) {
+        if (colors.isEmpty()) {
+            return;
+        }
         String gradientTag = tryBuildGradientTag(colors, chars);
         if (gradientTag != null) {
             result.append(gradientTag);
-            return;
+        } else {
+            for (int i = 0; i < colors.size(); i++) {
+                String hex = rgbToHex(colors.get(i));
+                result.append("<#").append(hex).append('>')
+                        .append(chars.get(i))
+                        .append("</#").append(hex).append('>');
+            }
         }
-
-        // fallback - nie udało się dopasować modelu gradientu, zostaw jak było
-        for (int i = 0; i < colors.size(); i++) {
-            String hex = rgbToHex(colors.get(i));
-            result.append("<#").append(hex).append('>')
-                    .append(chars.get(i))
-                    .append("</#").append(hex).append('>');
-        }
+        colors.clear();
+        chars.clear();
     }
 
     private static String tryBuildGradientTag(List<int[]> colors, List<String> chars) {
         if (colors.size() < 2) {
             return null;
         }
-
         List<Integer> stops = detectStops(colors);
         if (stops == null) {
             return null;
         }
-
         StringBuilder tag = new StringBuilder("<gradient");
         for (int idx : stops) {
             tag.append(':').append('#').append(rgbToHex(colors.get(idx)));
         }
         tag.append('>');
-
         for (String c : chars) {
             tag.append(c);
         }
@@ -105,10 +127,6 @@ public final class GradientCollapser {
 
     private static List<Integer> detectStops(List<int[]> colors) {
         int n = colors.size();
-        if (n < 2) {
-            return null;
-        }
-
         int cap = Math.min(MAX_STOPS, n);
         for (int k = 2; k <= cap; k++) {
             List<Integer> stopIndices = new ArrayList<>(k);
@@ -116,7 +134,6 @@ public final class GradientCollapser {
                 int idx = Math.round((m * (n - 1)) / (float) (k - 1));
                 stopIndices.add(idx);
             }
-
             if (matchesGradient(colors, stopIndices)) {
                 return stopIndices;
             }
@@ -127,9 +144,8 @@ public final class GradientCollapser {
     private static boolean matchesGradient(List<int[]> colors, List<Integer> stopIndices) {
         int n = colors.size();
         int k = stopIndices.size();
-
         for (int i = 0; i < n; i++) {
-            float t = i / (float) (n - 1);
+            float t = n == 1 ? 0 : i / (float) (n - 1);
             float segFloat = t * (k - 1);
             int seg = Math.min(k - 2, (int) Math.floor(segFloat));
             float localT = segFloat - seg;
