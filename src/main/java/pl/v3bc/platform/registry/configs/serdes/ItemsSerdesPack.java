@@ -6,6 +6,6 @@ import eu.okaeri.configs.serdes.SerdesRegistry;
 public class ItemsSerdesPack implements OkaeriSerdesPack {
     @Override
     public void register(SerdesRegistry registry) {
-        registry.register(new ItemStackTransformer());
+        registry.register(new MiniMessageItemMetaSerializer());
     }
 }
