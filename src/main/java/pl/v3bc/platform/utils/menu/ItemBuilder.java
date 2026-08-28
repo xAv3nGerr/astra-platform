@@ -141,16 +141,12 @@ public final class ItemBuilder {
     public ItemBuilder placeholder(String key, String value) {
         if (this.itemMeta == null || key == null) return this;
 
-        net.kyori.adventure.text.TextReplacementConfig replacementConfig =
-                net.kyori.adventure.text.TextReplacementConfig.builder()
-                        .matchLiteral(key)
-                        .replacement(NekoChat.translate(value != null ? value : ""))
-                        .build();
+        String replacementValue = value != null ? value : "";
 
         if (this.itemMeta.hasDisplayName()) {
             Component currentName = this.itemMeta.displayName();
             if (currentName != null) {
-                this.itemMeta.displayName(currentName.replaceText(replacementConfig));
+                this.itemMeta.displayName(replaceInComponent(currentName, key, replacementValue));
             }
         }
 
@@ -158,7 +154,7 @@ public final class ItemBuilder {
             List<Component> lore = this.itemMeta.lore();
             if (lore != null) {
                 List<Component> updatedLore = lore.stream()
-                        .map(line -> line.replaceText(replacementConfig))
+                        .map(line -> replaceInComponent(line, key, replacementValue))
                         .toList();
                 this.itemMeta.lore(updatedLore);
             }
@@ -166,6 +162,18 @@ public final class ItemBuilder {
 
         this.refreshMeta();
         return this;
+    }
+
+    private Component replaceInComponent(Component target, String key, String value) {
+        boolean containsMiniMessage = value.contains("<") && value.contains(">");
+
+        net.kyori.adventure.text.TextReplacementConfig config = net.kyori.adventure.text.TextReplacementConfig.builder()
+                .matchLiteral(key)
+                .replacement(containsMiniMessage ? NekoChat.translate(value) : Component.text(value))
+                .build();
+
+        return target.replaceText(config)
+                .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
     }
 
     public ItemMeta getMeta() {
