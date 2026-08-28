@@ -1,11 +1,9 @@
 package pl.v3bc.platform.registry.configs;
 
 import com.eternalcode.multification.notice.resolver.NoticeResolverRegistry;
-import com.eternalcode.multification.okaeri.MultificationNoticeSerializer;
 import com.eternalcode.multification.okaeri.MultificationSerdesPack;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.OkaeriConfig;
-import eu.okaeri.configs.serdes.commons.SerdesCommons;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
 import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,8 @@ public class ConfigRegistry {
 
     public <T extends OkaeriConfig> T create(Class<T> clazz, File file) {
         T configFile = ConfigManager.create(clazz, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), new MultificationSerdesPack(noticeRegistry), new ItemsSerdesPack());
+            it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), new MultificationSerdesPack(noticeRegistry));
+            it.withSerdesPack(registry -> registry.register(new ItemsSerdesPack()));
             it.withBindFile(file);
             it.withRemoveOrphans(true);
             it.saveDefaults();
