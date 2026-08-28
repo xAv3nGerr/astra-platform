@@ -29,9 +29,7 @@ public class ItemStackSerializer implements ObjectSerializer<ItemStack> {
 
     @Override
     public void serialize(ItemStack itemStack, SerializationData data, GenericsDeclaration generics) {
-        if (itemStack == null) {
-            return;
-        }
+        if (itemStack == null) return;
 
         data.add("material", itemStack.getType());
 
@@ -40,50 +38,25 @@ public class ItemStackSerializer implements ObjectSerializer<ItemStack> {
         }
 
         ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return;
+        if (meta == null) return;
+
+        if (meta.hasDisplayName() && meta.displayName() != null) {
+            String serializedName = MiniMessage.miniMessage().serialize(meta.displayName());
+            serializedName = serializedName.replace("<!italic>", "").replace("<italic:false>", "");
+            data.add("name", serializedName);
         }
 
-        if (meta.hasDisplayName()) {
-            Component displayName = meta.displayName();
-            if (displayName != null) {
-                data.add("name", MiniMessage.miniMessage().serialize(displayName));
-            }
-        }
-
-        if (meta.hasLore()) {
-            List<Component> lore = meta.lore();
-            if (lore != null) {
-                List<String> serializedLore = lore.stream()
-                        .map(MiniMessage.miniMessage()::serialize)
-                        .toList();
-                data.addCollection("lore", serializedLore, String.class);
-            }
+        if (meta.hasLore() && meta.lore() != null) {
+            List<String> serializedLore = meta.lore().stream()
+                    .map(line -> MiniMessage.miniMessage().serialize(line)
+                            .replace("<!italic>", "")
+                            .replace("<italic:false>", ""))
+                    .toList();
+            data.addCollection("lore", serializedLore, String.class);
         }
 
         if (meta.hasCustomModelData()) {
             data.add("custom-model-data", meta.getCustomModelData());
-        }
-
-        if (meta.hasEnchants()) {
-            Map<String, Integer> enchantsMap = new HashMap<>();
-            meta.getEnchants().forEach((enchant, level) ->
-                    enchantsMap.put(enchant.getKey().getKey(), level)
-            );
-            data.add("enchants", enchantsMap);
-        }
-
-        Set<ItemFlag> flags = meta.getItemFlags();
-        if (!flags.isEmpty()) {
-            List<String> flagNames = flags.stream().map(Enum::name).toList();
-            data.addCollection("flags", flagNames, String.class);
-        }
-
-        if (meta instanceof SkullMeta skullMeta && skullMeta.getPlayerProfile() != null) {
-            skullMeta.getPlayerProfile().getProperties().stream()
-                    .filter(prop -> "textures".equals(prop.getName()))
-                    .findFirst()
-                    .ifPresent(prop -> data.add("texture", prop.getValue()));
         }
     }
 
@@ -97,63 +70,27 @@ public class ItemStackSerializer implements ObjectSerializer<ItemStack> {
         ItemStack item = new ItemStack(material != null ? material : Material.STONE, amount);
         ItemMeta meta = item.getItemMeta();
 
-        if (meta == null) {
-            return item;
-        }
-
-        if (data.containsKey("name")) {
-            String name = data.get("name", String.class);
-            if (name != null) {
-                meta.displayName(NekoChat.translate(name));
-            }
-        }
-
-        if (data.containsKey("lore")) {
-            List<String> lore = data.getAsList("lore", String.class);
-            if (lore != null) {
-                meta.lore(NekoChat.translate(lore));
-            }
-        }
-
-        if (data.containsKey("custom-model-data")) {
-            meta.setCustomModelData(data.get("custom-model-data", Integer.class));
-        }
-
-        if (data.containsKey("enchants")) {
-            Map<?, ?> enchants = data.get("enchants", Map.class);
-            if (enchants != null) {
-                enchants.forEach((key, val) -> {
-                    String enchantKey = String.valueOf(key);
-                    int level = val instanceof Number number ? number.intValue() : 1;
-
-                    Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantKey.toLowerCase()));
-                    if (enchantment != null) {
-                        meta.addEnchant(enchantment, level, true);
-                    }
-                });
-            }
-        }
-        if (data.containsKey("flags")) {
-            List<String> flags = data.getAsList("flags", String.class);
-            if (flags != null) {
-                for (String flagName : flags) {
-                    try {
-                        meta.addItemFlags(ItemFlag.valueOf(flagName.toUpperCase()));
-                    } catch (IllegalArgumentException ignored) {}
+        if (meta != null) {
+            if (data.containsKey("name")) {
+                String name = data.get("name", String.class);
+                if (name != null) {
+                    meta.displayName(NekoChat.translate("<!italic>" + name));
                 }
             }
-        }
 
-        if (data.containsKey("texture") && meta instanceof SkullMeta skullMeta) {
-            String texture = data.get("texture", String.class);
-            if (texture != null && !texture.isEmpty()) {
-                com.destroystokyo.paper.profile.PlayerProfile profile = org.bukkit.Bukkit.createProfile(java.util.UUID.randomUUID());
-                profile.setProperty(new com.destroystokyo.paper.profile.ProfileProperty("textures", texture));
-                skullMeta.setPlayerProfile(profile);
+            if (data.containsKey("lore")) {
+                List<String> lore = data.getAsList("lore", String.class);
+                if (lore != null) {
+                    List<Component> translatedLore = lore.stream()
+                            .map(line -> NekoChat.translate("<!italic>" + line))
+                            .toList();
+                    meta.lore(translatedLore);
+                }
             }
+
+            item.setItemMeta(meta);
         }
 
-        item.setItemMeta(meta);
         return item;
     }
 }
