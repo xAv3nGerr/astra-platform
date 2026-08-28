@@ -76,7 +76,7 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder glow() {
-        this.itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        this.itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
         this.itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         this.refreshMeta();
         return this;

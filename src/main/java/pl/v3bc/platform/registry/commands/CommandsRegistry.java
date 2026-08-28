@@ -15,6 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import pl.v3bc.platform.registry.commands.entry.ArgumentEntry;
 import pl.v3bc.platform.registry.commands.entry.ContextEntry;
+import pl.v3bc.platform.registry.commands.resolvers.InvalidUsageResolver;
+import pl.v3bc.platform.registry.commands.resolvers.MissingPermissionResolver;
 import pl.v3bc.platform.service.NoticeService;
 import pl.v3bc.platform.utils.NekoChat;
 
