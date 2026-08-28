@@ -25,8 +25,12 @@ public class ConfigRegistry {
 
     public <T extends OkaeriConfig> T create(Class<T> clazz, File file) {
         T configFile = ConfigManager.create(clazz, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), new MultificationSerdesPack(noticeRegistry));
-            it.withSerdesPack(registry -> registry.register(new ItemsSerdesPack()));
+            it.withConfigurer(
+                    new YamlBukkitConfigurer(),
+                    new SerdesBukkit(),
+                    new MultificationSerdesPack(noticeRegistry),
+                    new ItemsSerdesPack()
+            );
             it.withBindFile(file);
             it.withRemoveOrphans(true);
             it.saveDefaults();

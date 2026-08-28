@@ -31,6 +31,8 @@ public class ItemStackTransformer extends BidirectionalTransformer<ItemStack, Ma
             map.put("amount", itemStack.getAmount());
         }
 
+        System.out.println("[DEBUG] ItemStackTransformer.leftToRight called for " + itemStack.getType());
+
         ItemMeta meta = itemStack.getItemMeta();
         if (meta != null) {
             if (meta.hasDisplayName() && meta.displayName() != null) {
