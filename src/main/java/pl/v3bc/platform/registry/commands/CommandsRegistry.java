@@ -47,17 +47,15 @@ public class CommandsRegistry {
 
     public CommandsRegistry implementCommands(@NonNull Object... commands) {
         for (Object command : commands) {
-            if (!this.commands.contains(command)) {
-                this.commands.add(command);
-            }
+            this.implementCommand(command);
         }
         return this;
     }
 
     public CommandsRegistry implementCommands(@NonNull Collection<Object> commands) {
         for (Object command : commands) {
-            if (command != null && !this.commands.contains(command)) {
-                this.commands.add(command);
+            if (command != null) {
+                this.implementCommand(command);
             }
         }
         return this;
