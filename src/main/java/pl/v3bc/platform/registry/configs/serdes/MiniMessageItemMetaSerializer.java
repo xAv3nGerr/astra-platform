@@ -103,9 +103,10 @@ public class MiniMessageItemMetaSerializer implements ObjectSerializer<ItemMeta>
     }
 
     private String clean(String miniMessage) {
-        return miniMessage
+        String withoutItalic = miniMessage
                 .replace("<!italic>", "")
                 .replace("<italic:false>", "");
+        return GradientCollapser.collapse(withoutItalic);
     }
 
     private Component noItalic(Component component) {
