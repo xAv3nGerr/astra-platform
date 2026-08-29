@@ -9,7 +9,6 @@ import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
 import pl.v3bc.platform.registry.configs.serdes.ItemsSerdesPack;
-import pl.v3bc.platform.registry.configs.serdes.QuoteEnforcer;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,14 +24,13 @@ public class ConfigRegistry {
     public void reload() {
         this.configs.forEach((config, file) -> {
             config.load();
-            this.enforceQuotes(file);
         });
     }
 
     public <T extends OkaeriConfig> T create(Class<T> clazz, File file) {
         T configFile = ConfigManager.create(clazz, it -> {
             it.withConfigurer(
-                    new YamlBukkitConfigurer(),
+                    new DoubleQuotedYamlConfigurer(),
                     new SerdesBukkit(),
                     new MultificationSerdesPack(this.noticeRegistry),
                     new ItemsSerdesPack()
@@ -43,20 +41,11 @@ public class ConfigRegistry {
             it.load(true);
         });
 
-        this.enforceQuotes(file);
         this.configs.put(configFile, file);
         return configFile;
     }
 
     public <T extends OkaeriConfig> T register(Class<T> clazz, Plugin plugin, String fileName) {
         return this.create(clazz, new File(plugin.getDataFolder(), fileName));
-    }
-
-    private void enforceQuotes(File file) {
-        try {
-            QuoteEnforcer.enforceDoubleQuotes(file.toPath());
-        } catch (IOException exception) {
-            throw new RuntimeException("Nie udało się wymusić cudzysłowów w pliku " + file, exception);
-        }
     }
 }

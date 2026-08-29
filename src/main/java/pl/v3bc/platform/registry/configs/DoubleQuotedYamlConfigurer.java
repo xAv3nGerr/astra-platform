@@ -1,0 +1,76 @@
+package pl.v3bc.platform.registry.configs;
+
+import eu.okaeri.configs.configurer.Configurer;
+import eu.okaeri.configs.format.yaml.YamlSourceWalker;
+import eu.okaeri.configs.postprocessor.ConfigPostprocessor;
+import eu.okaeri.configs.schema.ConfigDeclaration;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Accessors(chain = true)
+public class DoubleQuotedYamlConfigurer extends Configurer {
+
+    @Setter private String commentPrefix = "# ";
+    private final Yaml yaml = buildYaml();
+
+    @Override
+    public List<String> getExtensions() {
+        return Arrays.asList("yml", "yaml");
+    }
+
+    @Override
+    public boolean isCommentLine(String line) {
+        return line.trim().startsWith("#");
+    }
+
+    @Override
+    public Map<String, Object> load(@NonNull InputStream inputStream, @NonNull ConfigDeclaration declaration) throws Exception {
+        String content = ConfigPostprocessor.of(inputStream).getContext();
+        Object loaded = this.yaml.load(content);
+        if (loaded == null) {
+            return new LinkedHashMap<>();
+        }
+        return (Map<String, Object>) loaded;
+    }
+
+    @Override
+    public void write(@NonNull OutputStream outputStream, @NonNull Map<String, Object> data, @NonNull ConfigDeclaration declaration) throws Exception {
+        String dump = this.yaml.dump(data);
+        ConfigPostprocessor.of(dump)
+                .removeLines(line -> line.startsWith(this.commentPrefix.trim()))
+                .removeLinesUntil(line -> line.chars().anyMatch(x -> !Character.isWhitespace(x)))
+                .updateContext(ctx -> YamlSourceWalker.of(ctx).insertComments(declaration, this.commentPrefix))
+                .write(outputStream);
+    }
+
+    private static Yaml buildYaml() {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setIndent(2);
+        options.setAllowUnicode(true);
+        options.setWidth(Integer.MAX_VALUE);
+
+        Representer representer = new Representer(options) {
+            {
+                this.representers.put(String.class, (data) ->
+                        representScalar(Tag.STR, (String) data, DumperOptions.ScalarStyle.DOUBLE_QUOTED));
+            }
+        };
+        representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+        return new Yaml(representer, options);
+    }
+}
