@@ -147,8 +147,8 @@ public final class ItemBuilder {
             Component currentName = this.itemMeta.displayName();
             if (currentName != null) {
                 String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(currentName);
-                String replaced = serialized.replace(key, replacementValue);
-                this.itemMeta.displayName(NekoChat.translate(replaced));
+                serialized = serialized.replace("\\" + key, key).replace(key, replacementValue);
+                this.itemMeta.displayName(NekoChat.translate(serialized));
             }
         }
 
@@ -158,8 +158,8 @@ public final class ItemBuilder {
                 List<Component> updatedLore = lore.stream()
                         .map(line -> {
                             String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(line);
-                            String replaced = serialized.replace(key, replacementValue);
-                            return NekoChat.translate(replaced);
+                            serialized = serialized.replace("\\" + key, key).replace(key, replacementValue);
+                            return NekoChat.translate(serialized);
                         })
                         .toList();
                 this.itemMeta.lore(updatedLore);
