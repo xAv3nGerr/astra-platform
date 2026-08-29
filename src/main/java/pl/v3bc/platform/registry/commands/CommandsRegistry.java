@@ -18,7 +18,7 @@ import pl.v3bc.platform.registry.commands.entry.ContextEntry;
 import pl.v3bc.platform.registry.commands.resolvers.InvalidUsageResolver;
 import pl.v3bc.platform.registry.commands.resolvers.MissingPermissionResolver;
 import pl.v3bc.platform.service.NoticeService;
-import pl.v3bc.platform.utils.NekoChat;
+import pl.v3bc.platform.utils.adventure.NekoChat;
 
 import java.util.ArrayList;
 import java.util.Collection;

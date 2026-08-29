@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.v3bc.platform.service.NoticeService;
-import pl.v3bc.platform.utils.NekoChat;
-
+import pl.v3bc.platform.utils.adventure.NekoChat;
 
 
 @RequiredArgsConstructor

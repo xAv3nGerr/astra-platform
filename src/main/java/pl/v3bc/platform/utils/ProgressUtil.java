@@ -1,6 +1,7 @@
 package pl.v3bc.platform.utils;
 
 import net.kyori.adventure.text.Component;
+import pl.v3bc.platform.utils.adventure.NekoChat;
 
 /**
  * @Author: v3bc_
