@@ -15,16 +15,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-
 /**
  * @Author: v3bc_
  * @Date: 8/23/26
  * @Project: astra-platform
  */
-
 public final class ItemBuilder {
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
+
+    private String rawName = null;
+    private List<String> rawLore = new ArrayList<>();
 
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack;
@@ -45,14 +46,20 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder name(String name) {
-        this.itemMeta.displayName(NekoChat.translate(name));
-        this.refreshMeta();
+        this.rawName = name;
+        if (this.itemMeta != null) {
+            this.itemMeta.displayName(NekoChat.translate(name));
+            this.refreshMeta();
+        }
         return this;
     }
 
     public ItemBuilder lore(List<String> strings) {
-        this.itemMeta.lore(NekoChat.translate(strings));
-        this.refreshMeta();
+        this.rawLore = new ArrayList<>(strings);
+        if (this.itemMeta != null) {
+            this.itemMeta.lore(NekoChat.translate(strings));
+            this.refreshMeta();
+        }
         return this;
     }
 
@@ -65,20 +72,51 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder appendLore(List<String> strings) {
-        List<Component> lore = this.itemMeta.hasLore() ? this.itemMeta.lore() : new ArrayList<>();
-        if (lore == null) {
-            lore = new ArrayList<>();
+        if (this.rawLore == null) {
+            this.rawLore = new ArrayList<>();
         }
-        lore.addAll(NekoChat.translate(strings));
-        this.itemMeta.lore(lore);
+        this.rawLore.addAll(strings);
+
+        if (this.itemMeta != null) {
+            List<Component> lore = this.itemMeta.hasLore() ? this.itemMeta.lore() : new ArrayList<>();
+            if (lore == null) {
+                lore = new ArrayList<>();
+            }
+            lore.addAll(NekoChat.translate(strings));
+            this.itemMeta.lore(lore);
+            this.refreshMeta();
+        }
+        return this;
+    }
+
+    public ItemBuilder placeholder(String key, String value) {
+        if (this.itemMeta == null || key == null) return this;
+        String replacementValue = value != null ? value : "";
+
+        if (this.rawName != null) {
+            this.rawName = this.rawName.replace(key, replacementValue);
+            this.itemMeta.displayName(NekoChat.translate(this.rawName));
+        }
+
+        if (this.rawLore != null && !this.rawLore.isEmpty()) {
+            List<String> updatedRawLore = new ArrayList<>();
+            for (String line : this.rawLore) {
+                updatedRawLore.add(line.replace(key, replacementValue));
+            }
+            this.rawLore = updatedRawLore;
+            this.itemMeta.lore(NekoChat.translate(this.rawLore));
+        }
+
         this.refreshMeta();
         return this;
     }
 
     public ItemBuilder glow() {
-        this.itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
-        this.itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        this.refreshMeta();
+        if (this.itemMeta != null) {
+            this.itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
+            this.itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            this.refreshMeta();
+        }
         return this;
     }
 
@@ -88,29 +126,32 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder flag(ItemFlag... itemFlags) {
-        this.itemMeta.addItemFlags(itemFlags);
-        this.refreshMeta();
+        if (this.itemMeta != null) {
+            this.itemMeta.addItemFlags(itemFlags);
+            this.refreshMeta();
+        }
         return this;
     }
 
     public ItemBuilder enchantment(Enchantment enchantment, int level) {
-        this.itemMeta.addEnchant(enchantment, level, true);
-        this.refreshMeta();
+        if (this.itemMeta != null) {
+            this.itemMeta.addEnchant(enchantment, level, true);
+            this.refreshMeta();
+        }
         return this;
     }
 
     @SuppressWarnings("deprecation")
     public ItemBuilder setCustomModelData(int customModelData) {
-        this.itemMeta.setCustomModelData(customModelData);
-        this.refreshMeta();
+        if (this.itemMeta != null) {
+            this.itemMeta.setCustomModelData(customModelData);
+            this.refreshMeta();
+        }
         return this;
     }
 
     public ItemBuilder texture(String texture) {
-        if (this.itemStack.getType() != Material.PLAYER_HEAD) {
-            return this;
-        }
-        if (!(this.itemMeta instanceof SkullMeta skullMeta)) {
+        if (this.itemStack.getType() != Material.PLAYER_HEAD || !(this.itemMeta instanceof SkullMeta skullMeta)) {
             return this;
         }
         this.setSkullTexture(skullMeta, texture);
@@ -138,44 +179,14 @@ public final class ItemBuilder {
         }
     }
 
-    public ItemBuilder placeholder(String key, String value) {
-        if (this.itemMeta == null || key == null) return this;
-
-        String replacementValue = value != null ? value : "";
-
-        if (this.itemMeta.hasDisplayName()) {
-            Component currentName = this.itemMeta.displayName();
-            if (currentName != null) {
-                String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(currentName);
-                serialized = serialized.replace("\\" + key, key).replace(key, replacementValue);
-                this.itemMeta.displayName(NekoChat.translate(serialized));
-            }
-        }
-
-        if (this.itemMeta.hasLore()) {
-            List<Component> lore = this.itemMeta.lore();
-            if (lore != null) {
-                List<Component> updatedLore = lore.stream()
-                        .map(line -> {
-                            String serialized = net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(line);
-                            serialized = serialized.replace("\\" + key, key).replace(key, replacementValue);
-                            return NekoChat.translate(serialized);
-                        })
-                        .toList();
-                this.itemMeta.lore(updatedLore);
-            }
-        }
-
-        this.refreshMeta();
-        return this;
-    }
-
     public ItemMeta getMeta() {
         return this.itemMeta;
     }
 
     public void refreshMeta() {
-        this.itemStack.setItemMeta(this.itemMeta);
+        if (this.itemMeta != null) {
+            this.itemStack.setItemMeta(this.itemMeta);
+        }
     }
 
     public ItemStack asItemStack() {
