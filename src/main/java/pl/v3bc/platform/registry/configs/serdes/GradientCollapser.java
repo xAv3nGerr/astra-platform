@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class GradientCollapser {
 
-    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^<#([0-9a-fA-F]{6})>([^<]+)");
+    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^<#([0-9a-fA-F]{6})>([^<]*)(?:</#[0-9a-fA-F]{6}>)?");
     private static final int TOLERANCE = 3;
     private static final int MAX_STOPS = 5;
 
