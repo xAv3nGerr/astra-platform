@@ -1,7 +1,6 @@
 package pl.v3bc.platform.utils.menu;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -25,6 +24,9 @@ public final class ItemBuilder {
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
 
+    private String rawName = null;
+    private List<String> rawLore = new ArrayList<>();
+
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack;
         this.itemMeta = itemStack.getItemMeta();
@@ -44,6 +46,7 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder name(String name) {
+        this.rawName = name;
         if (this.itemMeta != null) {
             this.itemMeta.displayName(NekoChat.translate(name));
             this.refreshMeta();
@@ -52,6 +55,7 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder lore(List<String> strings) {
+        this.rawLore = new ArrayList<>(strings);
         if (this.itemMeta != null) {
             this.itemMeta.lore(NekoChat.translate(strings));
             this.refreshMeta();
@@ -68,6 +72,11 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder appendLore(List<String> strings) {
+        if (this.rawLore == null) {
+            this.rawLore = new ArrayList<>();
+        }
+        this.rawLore.addAll(strings);
+
         if (this.itemMeta != null) {
             List<Component> lore = this.itemMeta.hasLore() ? this.itemMeta.lore() : new ArrayList<>();
             if (lore == null) {
@@ -81,25 +90,21 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder placeholder(String key, String value) {
-        System.out.println(">>> WERSJA TESTOWA placeholder() ODPALONA, key=" + key);
         if (this.itemMeta == null || key == null) return this;
         String replacementValue = value != null ? value : "";
 
-        TextReplacementConfig replacement = TextReplacementConfig.builder()
-                .matchLiteral(key)
-                .replacement(replacementValue)
-                .build();
-
-        if (this.itemMeta.hasDisplayName() && this.itemMeta.displayName() != null) {
-            this.itemMeta.displayName(this.itemMeta.displayName().replaceText(replacement));
+        if (this.rawName != null) {
+            this.rawName = this.rawName.replace(key, replacementValue);
+            this.itemMeta.displayName(NekoChat.translate(this.rawName));
         }
 
-        if (this.itemMeta.hasLore() && this.itemMeta.lore() != null) {
-            List<Component> newLore = new ArrayList<>();
-            for (Component line : this.itemMeta.lore()) {
-                newLore.add(line.replaceText(replacement));
+        if (this.rawLore != null && !this.rawLore.isEmpty()) {
+            List<String> updatedRawLore = new ArrayList<>();
+            for (String line : this.rawLore) {
+                updatedRawLore.add(line.replace(key, replacementValue));
             }
-            this.itemMeta.lore(newLore);
+            this.rawLore = updatedRawLore;
+            this.itemMeta.lore(NekoChat.translate(this.rawLore));
         }
 
         this.refreshMeta();
