@@ -81,6 +81,7 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder placeholder(String key, String value) {
+        System.out.println(">>> WERSJA TESTOWA placeholder() ODPALONA, key=" + key);
         if (this.itemMeta == null || key == null) return this;
         String replacementValue = value != null ? value : "";
 
