@@ -1,6 +1,7 @@
 package pl.v3bc.platform.utils.menu;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -30,6 +31,18 @@ public final class ItemBuilder {
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack;
         this.itemMeta = itemStack.getItemMeta();
+
+        if (this.itemMeta != null) {
+            if (this.itemMeta.hasDisplayName() && this.itemMeta.displayName() != null) {
+                this.rawName = MiniMessage.miniMessage().serialize(this.itemMeta.displayName());
+            }
+            if (this.itemMeta.hasLore() && this.itemMeta.lore() != null) {
+                this.rawLore = new ArrayList<>();
+                for (Component line : this.itemMeta.lore()) {
+                    this.rawLore.add(MiniMessage.miniMessage().serialize(line));
+                }
+            }
+        }
     }
 
     private ItemBuilder(Material material, int amount) {
