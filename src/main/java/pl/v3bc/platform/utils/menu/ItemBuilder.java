@@ -1,14 +1,16 @@
 package pl.v3bc.platform.utils.menu;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import pl.v3bc.platform.utils.adventure.NekoChat;
 
 import java.util.ArrayList;
@@ -22,6 +24,10 @@ import java.util.UUID;
  * @Project: astra-platform
  */
 public final class ItemBuilder {
+    private static final NamespacedKey RAW_NAME_KEY = new NamespacedKey("astra", "item_raw_name");
+    private static final NamespacedKey RAW_LORE_KEY = new NamespacedKey("astra", "item_raw_lore");
+    private static final String LORE_SEPARATOR = "\u241E";
+
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
 
@@ -33,14 +39,13 @@ public final class ItemBuilder {
         this.itemMeta = itemStack.getItemMeta();
 
         if (this.itemMeta != null) {
-            if (this.itemMeta.hasDisplayName() && this.itemMeta.displayName() != null) {
-                this.rawName = MiniMessage.miniMessage().serialize(this.itemMeta.displayName());
+            PersistentDataContainer pdc = this.itemMeta.getPersistentDataContainer();
+            if (pdc.has(RAW_NAME_KEY, PersistentDataType.STRING)) {
+                this.rawName = pdc.get(RAW_NAME_KEY, PersistentDataType.STRING);
             }
-            if (this.itemMeta.hasLore() && this.itemMeta.lore() != null) {
-                this.rawLore = new ArrayList<>();
-                for (Component line : this.itemMeta.lore()) {
-                    this.rawLore.add(MiniMessage.miniMessage().serialize(line));
-                }
+            if (pdc.has(RAW_LORE_KEY, PersistentDataType.STRING)) {
+                String joined = pdc.get(RAW_LORE_KEY, PersistentDataType.STRING);
+                this.rawLore = new ArrayList<>(Arrays.asList(joined.split(LORE_SEPARATOR, -1)));
             }
         }
     }
@@ -62,6 +67,7 @@ public final class ItemBuilder {
         this.rawName = name;
         if (this.itemMeta != null) {
             this.itemMeta.displayName(NekoChat.translate(name));
+            this.itemMeta.getPersistentDataContainer().set(RAW_NAME_KEY, PersistentDataType.STRING, name);
             this.refreshMeta();
         }
         return this;
@@ -71,6 +77,7 @@ public final class ItemBuilder {
         this.rawLore = new ArrayList<>(strings);
         if (this.itemMeta != null) {
             this.itemMeta.lore(NekoChat.translate(strings));
+            this.itemMeta.getPersistentDataContainer().set(RAW_LORE_KEY, PersistentDataType.STRING, String.join(LORE_SEPARATOR, strings));
             this.refreshMeta();
         }
         return this;
@@ -97,6 +104,7 @@ public final class ItemBuilder {
             }
             lore.addAll(NekoChat.translate(strings));
             this.itemMeta.lore(lore);
+            this.itemMeta.getPersistentDataContainer().set(RAW_LORE_KEY, PersistentDataType.STRING, String.join(LORE_SEPARATOR, this.rawLore));
             this.refreshMeta();
         }
         return this;
@@ -109,6 +117,7 @@ public final class ItemBuilder {
         if (this.rawName != null) {
             this.rawName = this.rawName.replace(key, replacementValue);
             this.itemMeta.displayName(NekoChat.translate(this.rawName));
+            this.itemMeta.getPersistentDataContainer().set(RAW_NAME_KEY, PersistentDataType.STRING, this.rawName);
         }
 
         if (this.rawLore != null && !this.rawLore.isEmpty()) {
@@ -118,6 +127,7 @@ public final class ItemBuilder {
             }
             this.rawLore = updatedRawLore;
             this.itemMeta.lore(NekoChat.translate(this.rawLore));
+            this.itemMeta.getPersistentDataContainer().set(RAW_LORE_KEY, PersistentDataType.STRING, String.join(LORE_SEPARATOR, this.rawLore));
         }
 
         this.refreshMeta();
