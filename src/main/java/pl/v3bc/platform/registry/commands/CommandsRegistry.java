@@ -83,6 +83,7 @@ public class CommandsRegistry {
                 .message(LiteBukkitMessages.PLAYER_NOT_FOUND, (invocation, input) -> NekoChat.component("&cGracz &d" + input + "&c jest offline"))
                 .message(LiteBukkitMessages.PLAYER_ONLY, "&cTylko gracz może użyć &4tej komendy!");
 
+
         this.contexts.forEach(context -> this.addContext(builder, context));
         this.arguments.forEach(argument -> this.addArgument(builder, argument));
         this.commands.forEach(builder::commands);
