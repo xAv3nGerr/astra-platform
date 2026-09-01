@@ -24,6 +24,10 @@ public final class ItemUtil {
         player.getInventory().addItem(itemStack);
     }
 
+    public static void giveItemToSlot(@NonNull Player player, @NonNull int slot, @NonNull ItemStack itemStack) {
+        player.getInventory().setItem(slot, itemStack);
+    }
+
     public static void giveItemOrDrop(@NonNull Player player, @NonNull ItemStack itemStack) {
         if (ItemUtil.hasSpace(player.getInventory(), itemStack)) {
             player.getInventory().addItem(itemStack);
