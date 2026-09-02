@@ -15,13 +15,17 @@ public class VectorUtil {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static void push(Player player, double pushStrength) {
+    public static void push(Player player, double pushStrength, double upStrength) {
         if (pushStrength == 0.0) {
             pushStrength = 1.0;
         }
-        Vector forwardDirection = player.getLocation().getDirection().normalize();
-        Vector pushVector = forwardDirection.multiply(pushStrength);
-        player.setVelocity(player.getVelocity().add(pushVector));
+        Vector forwardDirection = player.getLocation().getDirection();
+
+        forwardDirection.setY(0).normalize();
+
+        Vector pushVector = forwardDirection.multiply(pushStrength).setY(upStrength);
+
+        player.setVelocity(pushVector);
     }
 
     public static void knockBack(Player player, Location location) {
