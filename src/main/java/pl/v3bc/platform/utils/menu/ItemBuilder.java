@@ -89,28 +89,6 @@ public final class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder placeholder(String key, String value) {
-        if (this.itemMeta == null || key == null) return this;
-        String replacementValue = value != null ? value : "";
-
-        if (this.rawName != null) {
-            this.rawName = this.rawName.replace(key, replacementValue);
-            this.itemMeta.displayName(NekoChat.translate(this.rawName));
-        }
-
-        if (this.rawLore != null && !this.rawLore.isEmpty()) {
-            List<String> updatedRawLore = new ArrayList<>();
-            for (String line : this.rawLore) {
-                updatedRawLore.add(line.replace(key, replacementValue));
-            }
-            this.rawLore = updatedRawLore;
-            this.itemMeta.lore(NekoChat.translate(this.rawLore));
-        }
-
-        this.refreshMeta();
-        return this;
-    }
-
     public ItemBuilder glow() {
         if (this.itemMeta != null) {
             this.itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
