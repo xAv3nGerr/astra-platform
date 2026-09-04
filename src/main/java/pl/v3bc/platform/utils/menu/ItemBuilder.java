@@ -10,10 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import pl.v3bc.platform.utils.adventure.NekoChat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @Author: v3bc_
@@ -85,6 +82,49 @@ public final class ItemBuilder {
             lore.addAll(NekoChat.translate(strings));
             this.itemMeta.lore(lore);
             this.refreshMeta();
+        }
+        return this;
+    }
+
+    public ItemBuilder placeholder(String key, String value) {
+        if (key == null || value == null) {
+            return this;
+        }
+
+        if (this.rawName != null) {
+            this.rawName = this.rawName.replace(key, value);
+        }
+
+        if (this.rawLore != null && !this.rawLore.isEmpty()) {
+            List<String> newLore = new ArrayList<>(this.rawLore.size());
+            for (String line : this.rawLore) {
+                newLore.add(line == null ? null : line.replace(key, value));
+            }
+            this.rawLore = newLore;
+        }
+
+        if (this.itemMeta != null) {
+            if (this.rawName != null) {
+                this.itemMeta.displayName(NekoChat.translate(this.rawName));
+            }
+            if (this.rawLore != null) {
+                this.itemMeta.lore(NekoChat.translate(this.rawLore));
+            }
+            this.refreshMeta();
+        }
+
+        return this;
+    }
+
+    public ItemBuilder placeholder(String key, Object value) {
+        return this.placeholder(key, String.valueOf(value));
+    }
+
+    public ItemBuilder placeholders(Map<String, String> replacements) {
+        if (replacements != null) {
+            for (Map.Entry<String, String> entry : replacements.entrySet()) {
+                this.placeholder(entry.getKey(), entry.getValue());
+            }
         }
         return this;
     }
