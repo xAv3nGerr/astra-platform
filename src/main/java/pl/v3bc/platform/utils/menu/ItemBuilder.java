@@ -1,6 +1,7 @@
 package pl.v3bc.platform.utils.menu;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -12,17 +13,9 @@ import pl.v3bc.platform.utils.adventure.NekoChat;
 
 import java.util.*;
 
-/**
- * @Author: v3bc_
- * @Date: 8/23/26
- * @Project: astra-platform
- */
 public final class ItemBuilder {
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
-
-    private String rawName = null;
-    private List<String> rawLore = new ArrayList<>();
 
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack;
@@ -43,7 +36,6 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder name(String name) {
-        this.rawName = name;
         if (this.itemMeta != null) {
             this.itemMeta.displayName(NekoChat.translate(name));
             this.refreshMeta();
@@ -52,7 +44,6 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder lore(List<String> strings) {
-        this.rawLore = new ArrayList<>(strings);
         if (this.itemMeta != null) {
             this.itemMeta.lore(NekoChat.translate(strings));
             this.refreshMeta();
@@ -64,21 +55,12 @@ public final class ItemBuilder {
         return this.lore(Arrays.asList(strings));
     }
 
-    public ItemBuilder appendLore(String... lines) {
-        return this.appendLore(Arrays.asList(lines));
-    }
-
     public ItemBuilder appendLore(List<String> strings) {
-        if (this.rawLore == null) {
-            this.rawLore = new ArrayList<>();
-        }
-        this.rawLore.addAll(strings);
-
         if (this.itemMeta != null) {
-            List<Component> lore = this.itemMeta.hasLore() ? this.itemMeta.lore() : new ArrayList<>();
-            if (lore == null) {
-                lore = new ArrayList<>();
-            }
+            List<Component> lore = this.itemMeta.hasLore() && this.itemMeta.lore() != null
+                    ? new ArrayList<>(this.itemMeta.lore())
+                    : new ArrayList<>();
+
             lore.addAll(NekoChat.translate(strings));
             this.itemMeta.lore(lore);
             this.refreshMeta();
@@ -86,33 +68,29 @@ public final class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder appendLore(String... lines) {
+        return this.appendLore(Arrays.asList(lines));
+    }
+
     public ItemBuilder placeholder(String key, String value) {
-        if (key == null || value == null) {
+        if (this.itemMeta == null || key == null || value == null) {
             return this;
         }
 
-        if (this.rawName != null) {
-            this.rawName = this.rawName.replace(key, value);
+        Component nameComponent = this.itemMeta.displayName();
+        if (nameComponent != null) {
+            this.itemMeta.displayName(replaceInComponent(nameComponent, key, value));
         }
 
-        if (this.rawLore != null && !this.rawLore.isEmpty()) {
-            List<String> newLore = new ArrayList<>(this.rawLore.size());
-            for (String line : this.rawLore) {
-                newLore.add(line == null ? null : line.replace(key, value));
-            }
-            this.rawLore = newLore;
+        List<Component> lore = this.itemMeta.lore();
+        if (lore != null && !lore.isEmpty()) {
+            List<Component> updatedLore = lore.stream()
+                    .map(comp -> replaceInComponent(comp, key, value))
+                    .toList();
+            this.itemMeta.lore(updatedLore);
         }
 
-        if (this.itemMeta != null) {
-            if (this.rawName != null) {
-                this.itemMeta.displayName(NekoChat.translate(this.rawName));
-            }
-            if (this.rawLore != null) {
-                this.itemMeta.lore(NekoChat.translate(this.rawLore));
-            }
-            this.refreshMeta();
-        }
-
+        this.refreshMeta();
         return this;
     }
 
@@ -127,6 +105,20 @@ public final class ItemBuilder {
             }
         }
         return this;
+    }
+
+    private Component replaceInComponent(Component component, String key, String value) {
+        String serialized = NekoChat.miniMessage().serialize(component);
+        if (serialized.contains(key)) {
+            return NekoChat.translate(serialized.replace(key, value));
+        }
+
+        String legacy = LegacyComponentSerializer.legacySection().serialize(component);
+        if (legacy.contains(key)) {
+            return NekoChat.translate(legacy.replace(key, value));
+        }
+
+        return component;
     }
 
     public ItemBuilder glow() {
