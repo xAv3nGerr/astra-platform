@@ -24,7 +24,7 @@ public final class ItemUtil {
         player.getInventory().addItem(itemStack);
     }
 
-    public static void giveItemToSlot(@NonNull Player player, @NonNull int slot, @NonNull ItemStack itemStack) {
+    public static void giveItemToSlot(@NonNull Player player, int slot, @NonNull ItemStack itemStack) {
         player.getInventory().setItem(slot, itemStack);
     }
 

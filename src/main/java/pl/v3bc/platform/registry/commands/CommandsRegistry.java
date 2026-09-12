@@ -18,7 +18,7 @@ import pl.v3bc.platform.registry.commands.entry.ContextEntry;
 import pl.v3bc.platform.registry.commands.resolvers.InvalidUsageResolver;
 import pl.v3bc.platform.registry.commands.resolvers.MissingPermissionResolver;
 import pl.v3bc.platform.service.NoticeService;
-import pl.v3bc.platform.utils.adventure.NekoChat;
+import pl.v3bc.platform.utils.ChatUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +80,7 @@ public class CommandsRegistry {
         LiteCommandsBuilder<CommandSender, LiteBukkitSettings, ?> builder = LiteBukkitFactory.builder("astra", plugin)
                 .invalidUsage(new InvalidUsageResolver(this.noticeService))
                 .missingPermission(new MissingPermissionResolver(this.noticeService))
-                .message(LiteBukkitMessages.PLAYER_NOT_FOUND, (invocation, input) -> NekoChat.component("&cGracz &d" + input + "&c jest offline"))
+                .message(LiteBukkitMessages.PLAYER_NOT_FOUND, (invocation, input) -> ChatUtil.component("&cGracz &d" + input + "&c jest offline"))
                 .message(LiteBukkitMessages.PLAYER_ONLY, "&cTylko gracz może użyć &4tej komendy!");
 
 
