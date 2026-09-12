@@ -1,5 +1,6 @@
 package pl.v3bc.platform.utils;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import java.util.List;
  * @Project: astra-platform
  */
 
+@UtilityClass
 public class LocationUtil {
     public static boolean isInRadius(Location location, int n) {
         return Math.abs(location.getBlockX()) <= n && Math.abs(location.getBlockZ()) <= n;

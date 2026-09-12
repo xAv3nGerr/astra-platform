@@ -2,15 +2,13 @@ package pl.v3bc.platform.utils;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-
+@UtilityClass
 public final class PlayerTransferUtil {
-
-    private PlayerTransferUtil() {
-    }
 
     @SuppressWarnings("UnstableApiUsage")
     public static void addToQueue(Plugin plugin, Player player, String targetServer) {

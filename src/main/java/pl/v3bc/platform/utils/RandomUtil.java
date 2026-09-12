@@ -1,5 +1,7 @@
 package pl.v3bc.platform.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -8,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @Project: astra-platform
  */
 
+@UtilityClass
 public class RandomUtil {
     public static int getRandInt(int n, int n2) {
         if (n == n2) {

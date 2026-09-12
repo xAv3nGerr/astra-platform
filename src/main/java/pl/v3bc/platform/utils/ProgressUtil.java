@@ -1,7 +1,7 @@
 package pl.v3bc.platform.utils;
 
+import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
-import pl.v3bc.platform.utils.adventure.NekoChat;
 
 /**
  * @Author: v3bc_
@@ -9,6 +9,7 @@ import pl.v3bc.platform.utils.adventure.NekoChat;
  * @Project: astra-platform
  */
 
+@UtilityClass
 public class ProgressUtil {
     public static Component bar(long intActually, long intRequired, int numberOfBlocks) {
         int i;
@@ -22,7 +23,7 @@ public class ProgressUtil {
         for (i = filledBlocks; i < numberOfBlocks; ++i) {
             progressBar.append("&c⏹");
         }
-        return NekoChat.component(progressBar.toString());
+        return ChatUtil.component(progressBar.toString());
     }
 
     public static Component bar(int intActually, int intRequired, int numberOfBlocks) {
@@ -37,7 +38,7 @@ public class ProgressUtil {
         for (i = filledBlocks; i < numberOfBlocks; ++i) {
             progressBar.append("&c⏹");
         }
-        return NekoChat.component(progressBar.toString());
+        return ChatUtil.component(progressBar.toString());
     }
 
     public static String percent(int intActually, int intRequired) {

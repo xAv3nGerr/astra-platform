@@ -1,5 +1,7 @@
 package pl.v3bc.platform.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.text.DecimalFormat;
 
 /**
@@ -8,6 +10,7 @@ import java.text.DecimalFormat;
  * @Project: astra-platform
  */
 
+@UtilityClass
 public class FormatUtil {
     private static final DecimalFormat df = new DecimalFormat("#.##");
 

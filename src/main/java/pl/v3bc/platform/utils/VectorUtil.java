@@ -1,5 +1,6 @@
 package pl.v3bc.platform.utils;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -9,11 +10,9 @@ import org.bukkit.util.Vector;
  * @Date: 8/23/26
  * @Project: astra-platform
  */
-public class VectorUtil {
 
-    private VectorUtil() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
+@UtilityClass
+public class VectorUtil {
 
     public static void push(Player player, double pushStrength, double upStrength) {
         if (pushStrength == 0.0) {

@@ -27,10 +27,11 @@ dependencies {
     implementation("dev.morphia.morphia:morphia-core:2.5.3")
     compileOnly("net.kyori:adventure-api:5.2.0")
     implementation("net.kyori:adventure-text-minimessage:5.2.0")
+    implementation("me.devnatan:inventory-framework-platform-bukkit:3.8.0-rc1")
+    implementation("me.devnatan:inventory-framework-api:3.8.0-rc1")
 
-    implementation("me.devnatan:inventory-framework-platform-bukkit:3.8.0-beta")
-    runtimeOnly("me.devnatan:inventory-framework-platform-paper:3.8.0-beta")
-    implementation("com.eternalcode:multification-paper:1.2.4") {
+
+implementation("com.eternalcode:multification-paper:1.2.4") {
         exclude(group = "net.kyori")
     }
     implementation("com.eternalcode:multification-okaeri:1.2.4") {

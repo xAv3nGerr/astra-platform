@@ -12,7 +12,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.v3bc.platform.service.NoticeService;
-import pl.v3bc.platform.utils.TimeUtil;
+import pl.v3bc.platform.utils.time.TimeUtil;
 
 import java.time.Duration;
 

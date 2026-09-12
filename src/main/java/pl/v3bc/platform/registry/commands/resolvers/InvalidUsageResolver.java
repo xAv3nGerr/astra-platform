@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.v3bc.platform.service.NoticeService;
-import pl.v3bc.platform.utils.adventure.NekoChat;
-
+import pl.v3bc.platform.utils.ChatUtil;
 
 @RequiredArgsConstructor
 public class InvalidUsageResolver implements InvalidUsageHandler<CommandSender> {
@@ -22,10 +21,10 @@ public class InvalidUsageResolver implements InvalidUsageHandler<CommandSender> 
         final CommandSender sender = invocation.sender();
         final Schematic schematic = result.getSchematic();
 
-        sender.sendMessage(NekoChat.translate("<red>Poprawne uzycie:"));
+        sender.sendMessage(ChatUtil.component("<red>Poprawne uzycie:"));
 
         for (String scheme : schematic.all()) {
-            sender.sendMessage(NekoChat.translate("<dark_gray>⏵ <white>Uzycie <dark_gray>- <#9bd0f7>" + scheme));
+            sender.sendMessage(ChatUtil.component("<dark_gray>⏵ <white>Uzycie <dark_gray>- <#9bd0f7>" + scheme));
         }
 
         if (sender instanceof Player player) {
