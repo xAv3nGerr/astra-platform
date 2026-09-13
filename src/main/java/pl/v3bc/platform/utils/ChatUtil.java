@@ -78,10 +78,12 @@ public final class ChatUtil {
         }
         TagResolver.Builder builder = TagResolver.builder();
         placeholders.forEach((key, value) -> {
+            String cleanKey = key.replaceAll("[{}]", "").toLowerCase();
+
             if (value instanceof Component component) {
-                builder.resolver(Placeholder.component(key, component));
+                builder.resolver(Placeholder.component(cleanKey, component));
             } else {
-                builder.resolver(Placeholder.parsed(key, String.valueOf(value)));
+                builder.resolver(Placeholder.parsed(cleanKey, String.valueOf(value)));
             }
         });
         return builder.build();
