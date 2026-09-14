@@ -196,9 +196,11 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder withKey(String key, PersistentDataType dataType, Object value) {
-        this.refreshMeta();
-        ItemNbt.withCustomData(this.itemStack, key, value, dataType);
-        this.itemMeta = this.itemStack.getItemMeta();
+        if (this.itemMeta != null) {
+            this.itemStack.setItemMeta(this.itemMeta);
+            ItemNbt.withCustomData(this.itemStack, key, value, dataType);
+            this.itemMeta = this.itemStack.getItemMeta();
+        }
         return this;
     }
 
