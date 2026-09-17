@@ -5,34 +5,36 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import pl.v3bc.platform.Main;
 
 public final class ItemNbt {
 
-    private static final String NAMESPACE = "astra";
-
-    public static boolean hasCustomData(ItemStack itemStack, String string, PersistentDataType persistentDataType) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) {
+    public static <T, Z> boolean hasCustomData(ItemStack itemStack, String key, PersistentDataType<T, Z> persistentDataType) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
             return false;
         }
-        PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
-        return persistentDataContainer.has(new NamespacedKey(NAMESPACE, string), persistentDataType);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        return container.has(new NamespacedKey(Main.getInstance(), key), persistentDataType);
     }
 
-    public static Object getCustomData(ItemStack itemStack, String string, PersistentDataType persistentDataType) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) {
+    public static <T, Z> Z getCustomData(ItemStack itemStack, String key, PersistentDataType<T, Z> persistentDataType) {
+        if (itemStack == null || !itemStack.hasItemMeta()) {
             return null;
         }
-        PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
-        return persistentDataContainer.get(new NamespacedKey(NAMESPACE, string), persistentDataType);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+        return container.get(new NamespacedKey(Main.getInstance(), key), persistentDataType);
     }
 
-    public static ItemStack withCustomData(ItemStack itemStack, String string, Object object, PersistentDataType persistentDataType) {
+    public static <T, Z> ItemStack withCustomData(ItemStack itemStack, String key, Z value, PersistentDataType<T, Z> persistentDataType) {
+        if (itemStack == null) {
+            return null;
+        }
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
-            persistentDataContainer.set(new NamespacedKey(NAMESPACE, string), persistentDataType, object);
+            PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+            container.set(new NamespacedKey(Main.getInstance(), key), persistentDataType, value);
             itemStack.setItemMeta(itemMeta);
         }
         return itemStack;
