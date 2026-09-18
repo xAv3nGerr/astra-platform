@@ -31,6 +31,20 @@ public final class ItemNbt {
         return itemStack;
     }
 
+    public static ItemStack removeCustomData(ItemStack itemStack, String key) {
+        if (itemStack == null || !itemStack.hasItemMeta()) return itemStack;
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        NamespacedKey namespacedKey = new NamespacedKey(NAMESPACE, key);
+
+        if (itemMeta.getPersistentDataContainer().has(namespacedKey)) {
+            itemMeta.getPersistentDataContainer().remove(namespacedKey);
+            itemStack.setItemMeta(itemMeta);
+        }
+
+        return itemStack;
+    }
+
     private ItemNbt() {
         throw new UnsupportedOperationException("Utility class");
     }
