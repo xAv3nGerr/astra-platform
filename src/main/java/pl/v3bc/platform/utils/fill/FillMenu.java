@@ -21,7 +21,7 @@ public class FillMenu {
 
     public static final int[] BLUE_SLOTS_3 = {0, 8, 18, 26};
     public static final int[] LIGHT_BLUE_SLOTS_3 = {1, 7, 9, 17, 19, 25};
-    public static final int[] WHITE_SLOTS_3 = {2, 3, 5, 6, 21, 22, 24, 25};
+    public static final int[] WHITE_SLOTS_3 = {2, 3, 5, 6, 20, 21,  23, 24};
 
     public static void fill6Rows(RenderContext render) {
         ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
