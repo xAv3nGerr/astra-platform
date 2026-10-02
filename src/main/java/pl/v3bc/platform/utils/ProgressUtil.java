@@ -2,6 +2,7 @@ package pl.v3bc.platform.utils;
 
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
+import pl.v3bc.platform.utils.text.TextUtil;
 
 /**
  * @Author: v3bc_
@@ -23,7 +24,7 @@ public class ProgressUtil {
         for (i = filledBlocks; i < numberOfBlocks; ++i) {
             progressBar.append("&c⏹");
         }
-        return ChatUtil.component(progressBar.toString());
+        return TextUtil.parse(progressBar.toString());
     }
 
     public static Component bar(int intActually, int intRequired, int numberOfBlocks) {
@@ -38,7 +39,7 @@ public class ProgressUtil {
         for (i = filledBlocks; i < numberOfBlocks; ++i) {
             progressBar.append("&c⏹");
         }
-        return ChatUtil.component(progressBar.toString());
+        return TextUtil.parse(progressBar.toString());
     }
 
     public static String percent(int intActually, int intRequired) {

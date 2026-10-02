@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import pl.v3bc.platform.service.EditorService;
-import pl.v3bc.platform.utils.ChatUtil;
+import pl.v3bc.platform.utils.text.TextUtil;
 
 @RequiredArgsConstructor
 public class ChatEditorListener implements Listener {
@@ -23,7 +23,7 @@ public class ChatEditorListener implements Listener {
             return;
         }
         asyncChatEvent.setCancelled(true);
-        String input = ChatUtil.toLegacy(asyncChatEvent.message());
+        String input = TextUtil.serialize(asyncChatEvent.message());
         Bukkit.getScheduler().runTask(this.plugin, () -> EditorService.applyEdit(player, input));
     }
 

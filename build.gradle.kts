@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.3.build.+")
     implementation("dev.rollczi:litecommands-bukkit:3.11.0")
     implementation("eu.okaeri:okaeri-configs-yaml-bukkit:6.1.0-beta.4")
     implementation("eu.okaeri:okaeri-configs-serdes-bukkit:6.1.0-beta.4")
@@ -44,7 +44,7 @@ implementation("com.eternalcode:multification-paper:1.2.4") {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(27))
 }
 
 publishing {

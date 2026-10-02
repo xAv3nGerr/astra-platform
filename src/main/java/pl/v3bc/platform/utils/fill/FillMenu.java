@@ -24,11 +24,11 @@ public class FillMenu {
     public static final int[] WHITE_SLOTS_3 = {2, 3, 5, 6, 20, 21,  23, 24};
 
     public static void fill6Rows(RenderContext render) {
-        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack ironBars = ItemBuilder.of(Material.IRON_BARS).name(" ").asItemStack();
-        ItemStack candle = ItemBuilder.of(Material.BLUE_CANDLE).name(" ").asItemStack();
+        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack ironBars = ItemBuilder.of(Material.IRON_BARS).setName(" ").toItemStack();
+        ItemStack candle = ItemBuilder.of(Material.BLUE_CANDLE).setName(" ").toItemStack();
 
         for (int slot : BLUE_SLOTS_6) {
             render.slot(slot, glass1);
@@ -48,11 +48,11 @@ public class FillMenu {
     }
 
     public static void fill5Rows(RenderContext render) {
-        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack ironBars = ItemBuilder.of(Material.IRON_BARS).name(" ").asItemStack();
-        ItemStack candle = ItemBuilder.of(Material.BLUE_CANDLE).name(" ").asItemStack();
+        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack ironBars = ItemBuilder.of(Material.IRON_BARS).setName(" ").toItemStack();
+        ItemStack candle = ItemBuilder.of(Material.BLUE_CANDLE).setName(" ").toItemStack();
 
         for (int slot : BLUE_SLOTS_5) {
             render.slot(slot, glass1);
@@ -72,9 +72,9 @@ public class FillMenu {
     }
 
     public static void fill3Rows(RenderContext render) {
-        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).name(" ").asItemStack();
-        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).name(" ").asItemStack();
+        ItemStack glass1 = ItemBuilder.of(Material.BLUE_STAINED_GLASS_PANE).setName(" ").toItemStack();
+        ItemStack glass2 = ItemBuilder.of(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setName("").toItemStack();
+        ItemStack glass3 = ItemBuilder.of(Material.WHITE_STAINED_GLASS_PANE).setName(" ").toItemStack();
 
         for (int slot : BLUE_SLOTS_3) {
             render.slot(slot, glass1);

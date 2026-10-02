@@ -9,13 +9,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import pl.v3bc.platform.utils.text.TextUtil;
 
 public class NoticeService extends PaperMultification<String> {
-    private final MiniMessage miniMessage;
-
-    public NoticeService(MiniMessage miniMessage) {
-        this.miniMessage = miniMessage;
-    }
 
     @Override
     @NotNull
@@ -26,7 +22,7 @@ public class NoticeService extends PaperMultification<String> {
     @Override
     @NotNull
     protected ComponentSerializer<Component, Component, String> serializer() {
-        return this.miniMessage;
+        return TextUtil.MINI_MESSAGE;
     }
 
     @Override

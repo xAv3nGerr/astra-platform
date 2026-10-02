@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import pl.v3bc.platform.utils.text.TextUtil;
 import pl.v3bc.platform.utils.time.TimeUtil;
 
 import java.time.Duration;
@@ -57,7 +58,7 @@ public class CooldownUtil {
             long remainingMillis = (remainingTicks / 20L) * 1000L;
             String formattedTime = TimeUtil.formatTimeSimple(Duration.ofMillis(remainingMillis));
 
-            player.sendMessage(ChatUtil.component(message, Map.of("TIME", formattedTime)));
+            player.sendMessage(TextUtil.color(message, Map.of("TIME", formattedTime)));
             playerNotifications.put(material, now);
         }
 

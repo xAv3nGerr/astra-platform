@@ -14,29 +14,43 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
-import pl.v3bc.platform.utils.ChatUtil;
 import pl.v3bc.platform.utils.nbt.ItemNbt;
+import pl.v3bc.platform.utils.text.TextBuilder;
+import pl.v3bc.platform.utils.text.TextUtil;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public final class ItemBuilder {
-    private final ItemStack itemStack;
-    private ItemMeta itemMeta;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-    public ItemBuilder(ItemStack itemStack) {
-        this.itemStack = itemStack;
-        this.itemMeta = itemStack.getItemMeta();
+/**
+ * @Author: mlyn3kk_
+ * @Website: https://discord.gg/swircode
+ * @Date: 29.09.2026
+ * @Project: SwirDev-Kits
+ */
+public class ItemBuilder {
+    private ItemStack itemStack;
+
+    public ItemBuilder(Material material) {
+        this.itemStack = new ItemStack(material);
     }
 
-    private ItemBuilder(Material material, int amount) {
+    public ItemBuilder(Material material, int amount) {
         this.itemStack = new ItemStack(material, amount);
-        this.itemMeta = this.itemStack.getItemMeta();
+    }
+
+    public ItemBuilder(ItemStack itemStack, boolean clone) {
+        this.itemStack = clone ? new ItemStack(itemStack) : itemStack;
     }
 
     public static ItemBuilder of(Material material) {
-        return new ItemBuilder(material, 1);
+        return new ItemBuilder(material);
     }
 
     public static ItemBuilder of(Material material, int amount) {
@@ -44,217 +58,237 @@ public final class ItemBuilder {
     }
 
     public static ItemBuilder of(ItemStack itemStack) {
-        return new ItemBuilder(itemStack.clone());
+        return new ItemBuilder(itemStack, true);
     }
 
-    public static ItemBuilder of(ItemStack itemStack, int amount) {
-        ItemBuilder builder = new ItemBuilder(itemStack.clone());
-        builder.amount(amount);
-        return builder;
+    public static ItemBuilder manipulate(ItemStack itemStack) {
+        return new ItemBuilder(itemStack, false);
     }
 
-    public ItemBuilder name(String name) {
-        return this.name(name, Collections.emptyMap());
-    }
-
-    public ItemBuilder name(String name, String key, Object value) {
-        return this.name(name, Map.of(key, value));
-    }
-
-    public ItemBuilder name(String name, Map<String, ?> placeholders) {
-        if (this.itemMeta != null) {
-            this.itemMeta.displayName(ChatUtil.component(name, placeholders));
-            this.refreshMeta();
-        }
-        return this;
-    }
-
-    public ItemBuilder lore(List<String> strings) {
-        return this.lore(strings, Collections.emptyMap());
-    }
-
-    public ItemBuilder lore(String... strings) {
-        return this.lore(Arrays.asList(strings));
-    }
-
-    public ItemBuilder lore(List<String> strings, Map<String, ?> placeholders) {
-        if (this.itemMeta != null) {
-            this.itemMeta.lore(ChatUtil.component(strings, placeholders));
-            this.refreshMeta();
-        }
-        return this;
-    }
-
-    public ItemBuilder startLoreWith(List<String> strings, Map<String, ?> placeholders) {
-        if (this.itemMeta != null) {
-            List<Component> newLore = ChatUtil.component(strings, placeholders);
-            List<Component> current = this.itemMeta.lore();
-            if (current != null && !current.isEmpty()) {
-                this.itemMeta.lore(Stream.concat(newLore.stream(), current.stream()).toList());
-            } else {
-                this.itemMeta.lore(newLore);
-            }
-            this.refreshMeta();
-        }
-        return this;
-    }
-
-    public ItemBuilder startLoreWith(List<String> strings) {
-        return this.startLoreWith(strings, Collections.emptyMap());
-    }
-
-    public ItemBuilder startLoreWith(String... strings) {
-        return this.startLoreWith(Arrays.asList(strings));
-    }
-
-    public ItemBuilder appendLore(List<String> strings, Map<String, ?> placeholders) {
-        if (this.itemMeta != null) {
-            List<Component> newLore = ChatUtil.component(strings, placeholders);
-            List<Component> current = this.itemMeta.lore();
-            if (current != null && !current.isEmpty()) {
-                this.itemMeta.lore(Stream.concat(current.stream(), newLore.stream()).toList());
-            } else {
-                this.itemMeta.lore(newLore);
-            }
-            this.refreshMeta();
-        }
-        return this;
-    }
-
-    public ItemBuilder appendLore(List<String> strings) {
-        return this.appendLore(strings, Collections.emptyMap());
-    }
-
-    public ItemBuilder appendLore(String... lines) {
-        return this.appendLore(Arrays.asList(lines));
-    }
-
-    public ItemBuilder amount(int amount) {
+    public ItemBuilder setAmount(int amount) {
         this.itemStack.setAmount(amount);
         return this;
     }
 
-    public ItemBuilder durability(int durability) {
-        if (this.itemMeta instanceof Damageable damageable) {
+    public ItemBuilder setType(Material material) {
+        this.itemStack.setType(material);
+        return this;
+    }
+
+    public ItemBuilder setType(ItemStack itemStack) {
+        return this.setType(itemStack, true);
+    }
+
+    public ItemBuilder setType(ItemStack itemStack, boolean clone) {
+        ItemStack copy = clone ? new ItemStack(itemStack) : itemStack;
+        copy.setAmount(this.itemStack.getAmount());
+        if (this.itemStack.hasItemMeta()) {
+            copy.setItemMeta(this.itemStack.getItemMeta());
+        }
+        this.itemStack = copy;
+        return this;
+    }
+
+    public ItemBuilder withDurability(int durability) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta instanceof Damageable damageable) {
             damageable.setDamage(durability);
-            this.refreshMeta();
+            this.itemStack.setItemMeta(itemMeta);
         }
         return this;
     }
 
-    public ItemBuilder unbreakable(boolean unbreakable) {
-        if (this.itemMeta != null) {
-            this.itemMeta.setUnbreakable(unbreakable);
-            this.refreshMeta();
+    public ItemBuilder setUnbreakable(boolean unbreakable) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null) {
+            return this;
         }
+        itemMeta.setUnbreakable(unbreakable);
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
-    public ItemBuilder color(Color color) {
-        if (this.itemMeta instanceof LeatherArmorMeta leatherMeta) {
-            leatherMeta.setColor(color);
-            this.refreshMeta();
+    public ItemBuilder setCmd(int cmd) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null) {
+            return this;
         }
+        itemMeta.setCustomModelData(cmd);
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
-    public ItemBuilder color(int rgb) {
-        return rgb >= 0 ? this.color(Color.fromRGB(rgb)) : this;
-    }
-
-    public ItemBuilder glow() {
-        if (this.itemMeta != null) {
-            this.itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
-            this.itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            this.refreshMeta();
+    public ItemBuilder setName(String name) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null || name == null) {
+            return this;
         }
+        itemMeta.displayName(TextUtil.parse(name));
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
-    public ItemBuilder flag(ItemFlag... itemFlags) {
-        if (this.itemMeta != null) {
-            this.itemMeta.addItemFlags(itemFlags);
-            this.refreshMeta();
+    public ItemBuilder setLore(List<String> lore) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null || lore == null) {
+            return this;
         }
+        itemMeta.lore(TextUtil.parse(lore));
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
-    public ItemBuilder enchantment(Enchantment enchantment, int level) {
-        if (this.itemMeta != null) {
-            this.itemMeta.addEnchant(enchantment, level, true);
-            this.refreshMeta();
+    public ItemBuilder setLore(String... lore) {
+        return this.setLore(Arrays.asList(lore));
+    }
+
+    public ItemBuilder startLoreWith(List<String> lore) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null || lore == null) {
+            return this;
         }
+        List<Component> newLore = TextUtil.parse(lore);
+        List<Component> current = itemMeta.lore();
+        if (current != null && !current.isEmpty()) {
+            itemMeta.lore(Stream.concat(newLore.stream(), current.stream()).toList());
+        } else {
+            itemMeta.lore(newLore);
+        }
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
-    public ItemBuilder setCustomModelData(int customModelData) {
-        if (this.itemMeta != null) {
-            this.itemMeta.setCustomModelData(customModelData);
-            this.refreshMeta();
+    public ItemBuilder startLoreWith(String... lore) {
+        return this.startLoreWith(Arrays.asList(lore));
+    }
+
+    public ItemBuilder appendLore(List<String> lore) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null || lore == null) {
+            return this;
         }
+        List<Component> newLore = TextUtil.parse(lore);
+        List<Component> current = itemMeta.lore();
+        if (current != null && !current.isEmpty()) {
+            itemMeta.lore(Stream.concat(current.stream(), newLore.stream()).toList());
+        } else {
+            itemMeta.lore(newLore);
+        }
+        this.itemStack.setItemMeta(itemMeta);
+        return this;
+    }
+
+    public ItemBuilder appendLore(String... lore) {
+        return this.appendLore(Arrays.asList(lore));
+    }
+
+    public ItemBuilder placeholder(String key, Object value) {
+        return this.placeholders(Collections.singletonMap(key, value));
+    }
+
+    public ItemBuilder placeholders(Map<String, ?> placeholders) {
+        if (placeholders == null || placeholders.isEmpty()) {
+            return this;
+        }
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null) {
+            return this;
+        }
+        if (itemMeta.hasDisplayName()) {
+            Component displayName = itemMeta.displayName();
+            if (displayName != null) {
+                String serializedName = TextUtil.serialize(displayName);
+                TextBuilder builder = TextBuilder.builder().text(serializedName);
+                placeholders.forEach(builder::placeholder);
+                itemMeta.displayName(TextUtil.parse(builder.firstLine()));
+            }
+        }
+        if (itemMeta.hasLore()) {
+            List<Component> lore = itemMeta.lore();
+            if (lore != null && !lore.isEmpty()) {
+                List<String> serializedLore = lore.stream().map(TextUtil::serialize).toList();
+                TextBuilder builder = TextBuilder.builder().text(serializedLore);
+                placeholders.forEach(builder::placeholder);
+                itemMeta.lore(builder.buildAsComponents());
+            }
+        }
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
     public ItemBuilder withKey(String key, PersistentDataType dataType, Object value) {
-        if (this.itemMeta != null) {
-            this.itemStack.setItemMeta(this.itemMeta);
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta != null) {
+            this.itemStack.setItemMeta(itemMeta);
             ItemNbt.withCustomData(this.itemStack, key, value, dataType);
-            this.itemMeta = this.itemStack.getItemMeta();
+            this.itemStack.setItemMeta(itemMeta);
         }
+        return this;
+    }
+
+    public ItemBuilder setColor(Color color) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta instanceof LeatherArmorMeta leatherArmorMeta) {
+            leatherArmorMeta.setColor(color);
+            this.itemStack.setItemMeta(leatherArmorMeta);
+        }
+        return this;
+    }
+
+    public ItemBuilder setColor(int color) {
+        if (color < 0) {
+            return this;
+        }
+        return this.setColor(Color.fromRGB(color));
+    }
+
+    public ItemBuilder addEnchant(Enchantment enchantment, int level, boolean ignoreLevelRestriction) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null) {
+            return this;
+        }
+        itemMeta.addEnchant(enchantment, level, ignoreLevelRestriction);
+        this.itemStack.setItemMeta(itemMeta);
+        return this;
+    }
+
+    public ItemBuilder addEnchant(Enchantment enchantment, int level) {
+        return this.addEnchant(enchantment, level, true);
+    }
+
+    public ItemBuilder addFlags(ItemFlag... itemFlag) {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta == null) {
+            return this;
+        }
+        itemMeta.addItemFlags(itemFlag);
+        this.itemStack.setItemMeta(itemMeta);
         return this;
     }
 
     public ItemBuilder withCustomMeta(Function<ItemMeta, ItemMeta> function) {
-        if (this.itemMeta != null) {
-            this.itemMeta = function.apply(this.itemMeta);
-            this.refreshMeta();
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta != null) {
+            this.itemStack.setItemMeta(function.apply(itemMeta));
         }
         return this;
     }
 
-    public ItemBuilder texture(String texture) {
-        if (this.itemStack.getType() != Material.PLAYER_HEAD || !(this.itemMeta instanceof SkullMeta skullMeta)) {
+    public ItemBuilder setSkin(String texture) {
+        if (texture == null || texture.isEmpty()) {
             return this;
         }
-        this.setSkullTexture(skullMeta, texture);
-        this.refreshMeta();
-        return this;
-    }
-
-    public void setSkullTexture(SkullMeta meta, String textureValue) {
-        if (textureValue == null || textureValue.isEmpty()) return;
-
-        try {
+        ItemMeta itemMeta = this.itemStack.getItemMeta();
+        if (itemMeta instanceof SkullMeta skullMeta) {
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
-            profile.setProperty(new ProfileProperty("textures", textureValue));
-            meta.setPlayerProfile(profile);
-        } catch (Throwable e) {
-            try {
-                org.bukkit.profile.PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
-                profile.getTextures().setSkin(new java.net.URL("https://textures.minecraft.net/texture/" + textureValue));
-                meta.setOwnerProfile(profile);
-            } catch (Throwable ex) {
-                ex.printStackTrace();
-            }
+            profile.setProperty(new ProfileProperty("textures", texture));
+            skullMeta.setPlayerProfile(profile);
+            this.itemStack.setItemMeta(skullMeta);
         }
-    }
-
-    public ItemMeta getMeta() {
-        return this.itemMeta;
-    }
-
-    public void refreshMeta() {
-        if (this.itemMeta != null) {
-            this.itemStack.setItemMeta(this.itemMeta);
-        }
-    }
-
-    public ItemStack asItemStack() {
-        this.refreshMeta();
-        return this.itemStack;
+        return this;
     }
 
     public ItemStack toItemStack() {
-        return asItemStack();
+        return this.itemStack;
     }
 }
