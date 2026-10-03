@@ -39,8 +39,8 @@ implementation("com.eternalcode:multification-paper:1.2.4") {
     }
 
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
 }
 
 java {
