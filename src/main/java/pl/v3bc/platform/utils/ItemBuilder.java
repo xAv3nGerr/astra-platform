@@ -22,18 +22,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-/**
- * @Author: mlyn3kk_
- * @Website: https://discord.gg/swircode
- * @Date: 29.09.2026
- * @Project: SwirDev-Kits
- */
 public class ItemBuilder {
     private ItemStack itemStack;
 
@@ -128,6 +116,15 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder setName(String name, String placeholderKey, Object placeholderValue) {
+        return setName(name, Map.of(placeholderKey, placeholderValue));
+    }
+
+    public ItemBuilder setName(String name, Map<String, ?> placeholders) {
+        setName(name);
+        return placeholders(placeholders);
+    }
+
     public ItemBuilder setLore(List<String> lore) {
         ItemMeta itemMeta = this.itemStack.getItemMeta();
         if (itemMeta == null || lore == null) {
@@ -136,6 +133,11 @@ public class ItemBuilder {
         itemMeta.lore(TextUtil.parse(lore));
         this.itemStack.setItemMeta(itemMeta);
         return this;
+    }
+
+    public ItemBuilder setLore(List<String> lore, Map<String, ?> placeholders) {
+        setLore(lore);
+        return placeholders(placeholders);
     }
 
     public ItemBuilder setLore(String... lore) {
@@ -286,6 +288,10 @@ public class ItemBuilder {
             this.itemStack.setItemMeta(skullMeta);
         }
         return this;
+    }
+
+    public ItemStack asItemStack() {
+        return this.itemStack;
     }
 
     public ItemStack toItemStack() {
